@@ -1,27 +1,83 @@
-
-from flask import Flask, render_template
+from flask import Flask, request, jsonify
+import psycopg2
+from psycopg2.extras import RealDictCursor
 
 
 app = Flask(__name__)
-# 'image':'data:image/webp;base64,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'
 
 pets = [
-    {'id': 1, 'name': 'Rex', 'age': 7},
-    {'id': 2, 'name': 'Brown', 'age': 3,},
-    {'id': 3, 'name': 'Sunny', 'age': 5,},
+    {
+        "id": 1,
+        "name": "Rex",
+        "age": 7,
+        "image": "https://images.pexels.com/photos/1108099/pexels-photo-1108099.jpeg",
+    },
+    {
+        "id": 2,
+        "name": "Brown",
+        "age": 3,
+        "image": "https://images.pexels.com/photos/1108099/pexels-photo-1108099.jpeg",
+    },
+    {
+        "id": 3,
+        "name": "Sunny",
+        "age": 5,
+        "image": "https://images.pexels.com/photos/1108099/pexels-photo-1108099.jpeg",
+    },
 ]
+# Database connection parameters
+DB_PETS = {
+    'dbname': 'PET_dbname',
+    'AGE': 'your_user',
+    'password': 'your_password',
+    'host': 'localhost',
+}
 
-@app.route('/pets/')
-def show_all_pets():
+# pet list
+@app.route("/pets")
+def pets_list():
     return pets
 
-@app.route('/pets/<int:id>/')
-def show_pet(id):
-    pet = next((pet for pet in pets if pet['id'] == id), None)
-    if pet:
-        return pet
-    else:
-        return "Pet not found", 404
 
-if __name__ == '__main__':
+# ADD a pet
+@app.route("/pets", methods=["POST"])
+def add_pet():
+    new_pet = request.get_json()
+    pets.append(new_pet)
+    return {"result": "added succesfuly"}
+
+
+# SHOW a pet by ID
+@app.route("/pets/<id>/")
+def single_pet(id):
+    try:
+        for pet in pets:
+            if pet["id"] == int(id):
+                return pet
+    except:
+        print("error in id")
+    return {"result": "Pet not found"}
+
+
+# Delete a pet by ID
+@app.route("/pets/<int:id>", methods=["DELETE"])
+def delete_pet(id):
+    global pets
+    pets = [pet for pet in pets if pet["id"] != id]
+    return jsonify({"result": "Pet deleted successfully"}), 200
+
+
+# UPDATE a pet by ID
+@app.route("/pets/<int:id>", methods=["PUT"])
+def update_pet(id):
+    for pet in pets:
+        if pet["id"] == int(id):
+            updated_pet = request.get_json()
+            pets.remove(pet)
+            pets.append(updated_pet)
+            return jsonify({"result": "Pet updated successfully"}), 200
+    return jsonify({"result": "Pet not found"}), 400
+
+
+if __name__ == "__main__":
     app.run(debug=True)
