@@ -1,0 +1,21 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Store</title>
+</head>
+<body>
+    <h1>Products</h1>
+    <ul>
+        {% for pet in pets %}
+        {%if id==pet.id %}
+        <li>{{ pet.name }} - {{ pet.age }} 
+            <img src="{{ pet.image }}" alt="{{ pet.name }}">
+        </li>
+        <a href="{{ url_for('show_all_pets') }}">show  all pets</a>
+        {% endif %}
+        {% endfor %}
+    </ul>
+</body>
+</html>
