@@ -26,12 +26,12 @@ pets = [
     },
 ]
 # Database connection parameters
-DB_PETS = {
-    'dbname': 'PET_dbname',
-    'AGE': 'your_user',
-    'password': 'your_password',
-    'host': 'localhost',
-}
+# DB_PETS = {
+#     'dbname': 'PET_dbname',
+#     'AGE': 'your_user',
+#     'password': 'your_password',
+#     'host': 'localhost',
+# }
 
 # pet list
 @app.route("/pets")
